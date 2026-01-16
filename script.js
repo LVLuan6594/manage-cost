@@ -428,6 +428,121 @@ function logout() {
         window.location.href = 'login.html';
     }
 }
+
+// Xác thực mật khẩu
+const validatePassword = (password) => {
+    return {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    };
+};
+
+const isPasswordValid = (validation) => {
+    return Object.values(validation).every(v => v === true);
+};
+
+// Mở modal đổi mật khẩu
+function openChangePasswordModal() {
+    document.getElementById('changePasswordModal').classList.remove('hidden');
+    document.getElementById('current-password').focus();
+}
+
+// Đóng modal đổi mật khẩu
+function closeChangePasswordModal() {
+    document.getElementById('changePasswordModal').classList.add('hidden');
+    document.getElementById('change-password-form').reset();
+    document.getElementById('modal-error').classList.remove('show');
+    document.getElementById('modal-error').textContent = '';
+    
+    // Reset requirement indicators
+    ['length', 'uppercase', 'lowercase', 'number', 'special'].forEach(req => {
+        document.getElementById(`req-${req}`).classList.remove('valid');
+    });
+}
+
+// Kiểm tra mật khẩu mới khi người dùng nhập
+document.addEventListener('DOMContentLoaded', function() {
+    const newPasswordInput = document.getElementById('new-password');
+    
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            const validation = validatePassword(this.value);
+            
+            ['length', 'uppercase', 'lowercase', 'number', 'special'].forEach(req => {
+                const element = document.getElementById(`req-${req}`);
+                const parent = element.parentElement;
+                if (validation[req]) {
+                    element.classList.add('valid');
+                    parent.classList.add('valid');
+                } else {
+                    element.classList.remove('valid');
+                    parent.classList.remove('valid');
+                }
+            });
+        });
+    }
+
+    // Xử lý form đổi mật khẩu
+    const changePasswordForm = document.getElementById('change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorDiv = document.getElementById('modal-error');
+            
+            const config = getAccountConfig();
+            
+            // Kiểm tra mật khẩu hiện tại
+            if (currentPassword !== config.password) {
+                errorDiv.textContent = 'Mật khẩu hiện tại không chính xác!';
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            // Kiểm tra mật khẩu mới không trùng mật khẩu cũ
+            if (newPassword === config.password) {
+                errorDiv.textContent = 'Mật khẩu mới không được trùng với mật khẩu cũ!';
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            // Kiểm tra độ mạnh của mật khẩu
+            const validation = validatePassword(newPassword);
+            if (!isPasswordValid(validation)) {
+                errorDiv.textContent = 'Mật khẩu không đáp ứng các yêu cầu bảo mật!';
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            // Kiểm tra xác nhận mật khẩu
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'Mật khẩu xác nhận không trùng khớp!';
+                errorDiv.classList.add('show');
+                document.getElementById('confirm-password').focus();
+                return;
+            }
+            
+            // Cập nhật mật khẩu
+            const newConfig = {
+                username: config.username,
+                password: newPassword
+            };
+            
+            localStorage.setItem('accountConfig', JSON.stringify(newConfig));
+            
+            // Hiển thị thông báo thành công
+            alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+            closeChangePasswordModal();
+            logout();
+        });
+    }
+});
         
 // Định dạng ngày tháng
  

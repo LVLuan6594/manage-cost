@@ -445,6 +445,180 @@
             border-color: rgba(255, 255, 255, 0.6);
         }
 
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--gray-color);
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--dark-color);
+        }
+
+        #change-password-form {
+            padding: 25px;
+        }
+
+        .password-requirements {
+            background-color: var(--light-color);
+            border: 1px solid #d0d0d0;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .password-requirements p {
+            margin: 0 0 10px 0;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--gray-color);
+        }
+
+        .requirement i {
+            font-size: 0.7rem;
+            width: 10px;
+        }
+
+        .requirement.valid {
+            color: var(--success-color);
+        }
+
+        .requirement.valid i::before {
+            content: "\f05d";
+        }
+
+        .requirement i.valid::before {
+            content: "\f05d";
+        }
+
+        .modal-error {
+            display: none;
+            background-color: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        .modal-error.show {
+            display: block;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            padding: 0 25px 25px;
+            justify-content: flex-end;
+        }
+
+        .modal-actions .btn {
+            flex: 0 1 auto;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.2rem;
+            }
+
+            #change-password-form {
+                padding: 20px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                padding: 0 20px 20px;
+            }
+
+            .modal-actions .btn {
+                width: 100%;
+            }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
