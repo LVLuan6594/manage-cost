@@ -4,6 +4,11 @@ let events = JSON.parse(localStorage.getItem('fundEvents')) || [];
 let sourceChart = null;
 let expenseChart = null;
 
+// Kiểm tra đăng nhập trước khi tải ứng dụng
+if (!checkLogin()) {
+    throw new Error('User not authenticated');
+}
+
 // Hàm tiện ích
 const getToday = () => new Date().toISOString().split('T')[0];
 const formatCurrency = amount => amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
@@ -414,6 +419,14 @@ function checkLowFundWarning() {
     });
     const balance = totalIncome - totalExpense;
     toggleElement('low-fund-warning', balance < 500000);
+}
+
+// Hàm đăng xuất
+function logout() {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+        localStorage.removeItem('userLogin');
+        window.location.href = 'login.html';
+    }
 }
         
 // Định dạng ngày tháng
