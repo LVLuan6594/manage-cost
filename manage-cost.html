@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Quỹ Nhóm KD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-coins"></i>
+                <div>
+                    <h1>QUỸ NHÓM KD</h1>
+                    <p>Quản lý thu chi & dự trù sự kiện</p>
+                </div>
+            </div>
+            <div class="fund-status">
+                <div class="fund-amount" id="current-fund">0đ</div>
+                <div class="fund-label">Số dư quỹ hiện tại</div>
+                <div class="warning hidden" id="low-fund-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Cảnh báo: Quỹ còn dưới 500.000đ</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="nav-tabs">
+            <div class="tab active" data-tab="dashboard">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </div>
+            <div class="tab" data-tab="transaction">
+                <i class="fas fa-exchange-alt"></i> Quản lý Thu/Chi
+            </div>
+            <div class="tab" data-tab="event">
+                <i class="fas fa-calendar-alt"></i> Dự trù Sự kiện
+            </div>
+            <div class="tab" data-tab="history">
+                <i class="fas fa-history"></i> Lịch sử Giao dịch
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard-tab">
+            <h2 class="section-title"><i class="fas fa-chart-pie"></i> Tổng quan Quỹ Nhóm</h2>
+            
+            <div class="dashboard-cards">
+                <div class="card card-income">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <div class="card-title">Tổng Thu</div>
+                    <div class="card-value" id="total-income">0đ</div>
+                </div>
+                <div class="card card-expense">
+                    <i class="fas fa-shopping-cart"></i>
+                    <div class="card-title">Tổng Chi</div>
+                    <div class="card-value" id="total-expense">0đ</div>
+                </div>
+                <div class="card card-balance">
+                    <i class="fas fa-wallet"></i>
+                    <div class="card-title">Số dư Quỹ</div>
+                    <div class="card-value" id="balance">0đ</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Tỷ lệ Thu/Chi theo Nguồn</h3>
+                <div id="source-chart-placeholder">
+                    <canvas id="sourceChart" height="100"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Top 5 Loại Chi tiêu nhiều nhất</h3>
+                <div id="expense-chart-placeholder">
+                    <canvas id="expenseChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Management Tab -->
+        <div class="tab-content" id="transaction-tab">
+            <h2 class="section-title"><i class="fas fa-exchange-alt"></i> Thêm giao dịch Thu/Chi</h2>
+            
+            <form id="transaction-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transaction-date">Ngày/Tháng/Năm</label>
+                        <input type="date" id="transaction-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Loại giao dịch</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="type-income" name="type" value="income" checked>
+                                <label for="type-income">Thu</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="type-expense" name="type" value="expense">
+                                <label for="type-expense">Chi</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Số tiền (đ)</label>
+                        <input type="text" id="amount" class="form-control" placeholder="Nhập số tiền" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="source">Nguồn Thu/Chi</label>
+                        <select id="source" class="form-control" required>
+                            <option value="">Chọn nguồn</option>
+                            <option value="cash">Tiền mặt</option>
+                            <option value="momo">Momo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group" id="income-type-group">
+                        <label for="income-type">Loại Thu</label>
+                        <select id="income-type" class="form-control">
+                            <option value="">Chọn loại thu</option>
+                            <option value="ctp-nhom-kd">CTP nhóm KD</option>
+                            <option value="ctp-du-thviet">CTP dư của THViet</option>
+                            <option value="ttnlieu-gop">TTNLieu góp quỹ</option>
+                            <option value="thyen-gop">THYen góp quỹ</option>
+                            <option value="ntnhan-gop">NTNhan góp quỹ</option>
+                            <option value="tien-du-cpkd">Tiền dư CPKD</option>
+                            <option value="other-income">Khác (nhập bổ sung)</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="expense-type-group">
+                        <label for="expense-type">Loại Chi</label>
+                        <select id="expense-type" class="form-control">
+                            <option value="">Chọn loại chi</option>
+                            <option value="tam-hoa">Bổ sung tiệm tạp hóa</option>
+                            <option value="banh-trang">Mua bánh tráng</option>
+                            <option value="trai-cay">Mua trái cây</option>
+                            <option value="coffee">Mua coffee</option>
+                            <option value="sinh-nhat">Tổ chức sinh nhật</option>
+                            <option value="other-expense">Khác (nhập bổ sung)</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="birthday-person-group">
+                        <label for="birthday-person">Người được tổ chức sinh nhật</label>
+                        <select id="birthday-person" class="form-control">
+                            <option value="">Chọn thành viên</option>
+                            <option value="THViet">THViet</option>
+                            <option value="NTNhan">NTNhan</option>
+                            <option value="TTNLieu">TTNLieu</option>
+                            <option value="THThuong">THThuong</option>
+                            <option value="THYen">THYen</option>
+                            <option value="NTTLinh">NTTLinh</option>
+                            <option value="LKLinh">LKLinh</option>
+                            <option value="HHNy">HHNy</option>
+                            <option value="LVLuan">LVLuan</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row hidden" id="other-income-group">
+                    <div class="form-group">
+                        <label for="other-income">Mô tả loại thu khác</label>
+                        <input type="text" id="other-income" class="form-control" placeholder="Nhập loại thu khác">
+                    </div>
+                </div>
+                
+                <div class="form-row hidden" id="other-expense-group">
+                    <div class="form-group">
+                        <label for="other-expense">Mô tả loại chi khác</label>
+                        <input type="text" id="other-expense" class="form-control" placeholder="Nhập loại chi khác">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="member">Thành viên (người thu/chi)</label>
+                        <select id="member" class="form-control" required>
+                            <option value="">Chọn thành viên</option>
+                            <option value="THViet">THViet</option>
+                            <option value="NTNhan">NTNhan</option>
+                            <option value="TTNLieu">TTNLieu</option>
+                            <option value="THThuong">THThuong</option>
+                            <option value="THYen">THYen</option>
+                            <option value="NTTLinh">NTTLinh</option>
+                            <option value="LKLinh">LKLinh</option>
+                            <option value="HHNy">HHNy</option>
+                            <option value="LVLuan">LVLuan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Mô tả (tuỳ chọn)</label>
+                        <input type="text" id="description" class="form-control" placeholder="Nhập mô tả chi tiết">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu giao dịch
+                    </button>
+                    <button type="reset" class="btn btn-secondary" id="reset-form">
+                        <i class="fas fa-redo"></i> Nhập lại
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Event Planning Tab -->
+        <div class="tab-content" id="event-tab">
+            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Dự trù kinh phí tổ chức sự kiện</h2>
+            
+            <div class="event-planning">
+                <h3><i class="fas fa-lightbulb"></i> Hướng dẫn sử dụng</h3>
+                <p>Tạo kế hoạch chi tiêu cho sự kiện sắp tới. Sau khi sự kiện diễn ra, cập nhật chi phí thực tế và tình trạng thanh toán.</p>
+            </div>
+            
+            <form id="event-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-type">Loại sự kiện</label>
+                        <input type="text" id="event-type" class="form-control" placeholder="VD: Sinh nhật, Team building, Liên hoan..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-date">Ngày dự kiến</label>
+                        <input type="date" id="event-date" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-name">Món cần mua</label>
+                        <input type="text" id="item-name" class="form-control" placeholder="VD: Bánh kem, Hoa quả, Nước ngọt..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-quantity">Số lượng</label>
+                        <input type="number" id="item-quantity" class="form-control" min="1" value="1" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estimated-cost">Chi phí dự kiến (đ)</label>
+                        <input type="text" id="estimated-cost" class="form-control" placeholder="Nhập chi phí dự kiến" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="total-estimated">Tổng tiền dự kiến (đ)</label>
+                        <input type="text" id="total-estimated" class="form-control" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-buyer">Người mua</label>
+                        <select id="event-buyer" class="form-control" required>
+                            <option value="">Chọn thành viên</option>
+                            <option value="THViet">THViet</option>
+                            <option value="NTNhan">NTNhan</option>
+                            <option value="TTNLieu">TTNLieu</option>
+                            <option value="THThuong">THThuong</option>
+                            <option value="THYen">THYen</option>
+                            <option value="NTTLinh">NTTLinh</option>
+                            <option value="LKLinh">LKLinh</option>
+                            <option value="HHNy">HHNy</option>
+                            <option value="LVLuan">LVLuan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="advance-money">Số tiền đã đưa cho người mua (đ)</label>
+                        <input type="text" id="advance-money" class="form-control" placeholder="Nhập số tiền đã đưa">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="actual-cost">Chi phí thực tế (đ)</label>
+                        <input type="text" id="actual-cost" class="form-control" placeholder="Nhập chi phí thực tế sau sự kiện">
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-status">Tình trạng thanh toán</label>
+                        <select id="payment-status" class="form-control">
+                            <option value="pending">Chưa thanh toán</option>
+                            <option value="partial">Thanh toán một phần</option>
+                            <option value="completed">Đã thanh toán đủ</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Lưu kế hoạch sự kiện
+                    </button>
+                    <button type="reset" class="btn btn-secondary" id="reset-event-form">
+                        <i class="fas fa-redo"></i> Nhập lại
+                    </button>
+                </div>
+            </form>
+            
+            <div style="margin-top: 40px;">
+                <h3 class="section-title"><i class="fas fa-list"></i> Danh sách sự kiện đã lập</h3>
+                <div class="no-data" id="no-event-data">
+                    <i class="far fa-calendar-times"></i>
+                    <p>Chưa có sự kiện nào được lập kế hoạch</p>
+                </div>
+                <table class="transactions-table hidden" id="event-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Loại sự kiện</th>
+                            <th>Món cần mua</th>
+                            <th>Số lượng</th>
+                            <th>Tổng tiền dự kiến</th>
+                            <th>Người mua</th>
+                            <th>Chi phí thực tế</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="event-table-body">
+                        <!-- Sự kiện sẽ được thêm vào đây bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transaction History Tab -->
+        <div class="tab-content" id="history-tab">
+            <h2 class="section-title"><i class="fas fa-history"></i> Lịch sử giao dịch</h2>
+            
+            <div class="form-row" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="filter-type">Lọc theo loại</label>
+                    <select id="filter-type" class="form-control">
+                        <option value="all">Tất cả</option>
+                        <option value="income">Thu</option>
+                        <option value="expense">Chi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filter-source">Lọc theo nguồn</label>
+                    <select id="filter-source" class="form-control">
+                        <option value="all">Tất cả</option>
+                        <option value="cash">Tiền mặt</option>
+                        <option value="momo">Momo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filter-member">Lọc theo thành viên</label>
+                    <select id="filter-member" class="form-control">
+                        <option value="all">Tất cả thành viên</option>
+                        <option value="THViet">THViet</option>
+                        <option value="NTNhan">NTNhan</option>
+                        <option value="TTNLieu">TTNLieu</option>
+                        <option value="THThuong">THThuong</option>
+                        <option value="THYen">THYen</option>
+                        <option value="NTTLinh">NTTLinh</option>
+                        <option value="LKLinh">LKLinh</option>
+                        <option value="HHNy">HHNy</option>
+                        <option value="LVLuan">LVLuan</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="no-data" id="no-transaction-data">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <p>Chưa có giao dịch nào được ghi nhận</p>
+            </div>
+            
+            <table class="transactions-table hidden" id="transaction-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Ngày</th>
+                        <th>Loại</th>
+                        <th>Số tiền</th>
+                        <th>Nguồn</th>
+                        <th>Loại Thu/Chi</th>
+                        <th>Thành viên</th>
+                        <th>Mô tả</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="transaction-table-body">
+                    <!-- Giao dịch sẽ được thêm vào đây bằng JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+        <script src="script.js"></script>
+
+</body>
+</html>
